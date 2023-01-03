@@ -74,6 +74,12 @@ for i in G.nodes():
     # Assume that all of the interfaces are free
     free_interfaces[i] = len(G.nodes[i]['interfaces'])
 
+# connect base stations with each other
+G.add_edge(bs1, bs2, weight = (1 / 15))
+
+#decrement free interfaces of base stations
+free_interfaces[bs1] -= 1
+free_interfaces[bs2] -= 1
 
 # Iterate through all of the nodes in the graph
 for i in G.nodes():
@@ -84,11 +90,20 @@ for i in G.nodes():
         if(free_interfaces[i] == 0):
             break
         if free_interfaces[j] != 0:
+            # if the node is a base station, then add an edge with weight 1/15
+            if i == bs1 or i == bs2:
+                G.add_edge(i, j, weight = (1 / 15))
+                free_interfaces[i] -= 1
+                free_interfaces[j] -= 1
+                continue
             # Add an edge between the two nodes
             G.add_edge(i, j, weight = 1 / random.randint(1, 15))
             free_interfaces[i] -= 1
             free_interfaces[j] -= 1
 
+
+# connect base stations with each other
+G.add_edge(bs1, bs2, weight = (1 / 15))
 
 shortest_path = nx.dijkstra_path(G, source_node, destination_node)
 send = []
